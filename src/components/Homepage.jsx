@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const BASE_URL = 'https://stego-backend-1txg.onrender.com';
 
 const HomePage = () => {
   const [publicFiles, setPublicFiles] = useState([]);
@@ -21,8 +18,9 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/list-uploads`)
-      .then(res => setPublicFiles(res.data))
+    fetch('http://127.0.0.1:5000/list-uploads')
+      .then(res => res.json())
+      .then(setPublicFiles)
       .catch(console.error);
   }, []);
 
@@ -42,18 +40,25 @@ const HomePage = () => {
     formData.append("mode", "basic");
 
     try {
-      const res = await axios.post(`${BASE_URL}/submit`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const res = await fetch('http://127.0.0.1:5000/submit', {
+        method: 'POST',
+        body: formData,
       });
 
-      const fullStegoUrl = `${BASE_URL}${res.data.file}`;
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Server error: ${res.status} ${text}`);
+      }
+
+      const data = await res.json();
+      const fullStegoUrl = `http://127.0.0.1:5000${data.file}`;
       setDownloadUrl(fullStegoUrl);
       alert("Upload successful!");
 
-      const uploadList = await axios.get(`${BASE_URL}/list-uploads`);
-      setPublicFiles(uploadList.data);
+      fetch('http://127.0.0.1:5000/list-uploads')
+        .then(res => res.json())
+        .then(setPublicFiles)
+        .catch(console.error);
 
     } catch (err) {
       console.error("Upload failed:", err);
@@ -66,12 +71,13 @@ const HomePage = () => {
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-8">
         <h1 className="text-3xl font-bold text-emerald-800 mb-6 text-center">View Uploads</h1>
 
+        {/* Public Uploads Grid */}
         {publicFiles.length > 0 && (
           <div className="mt-6">
             <h2 className="text-lg font-semibold mb-3 text-emerald-700">Uploaded Files</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {publicFiles.map((file, idx) => {
-                const fileUrl = `${BASE_URL}/uploads/${file}`;
+                const fileUrl = `http://127.0.0.1:5000/uploads/${file}`;
                 const isImage = file.match(/\.(jpg|jpeg|png|gif)$/i);
                 const isVideo = file.match(/\.(mp4|mov|webm)$/i);
 
@@ -100,6 +106,7 @@ const HomePage = () => {
           </div>
         )}
 
+        {/* Upload Form */}
         {user ? (
           <div className="bg-emerald-50 p-6 rounded-xl mt-10 shadow-inner">
             <h2 className="text-xl font-semibold text-emerald-800 mb-4">Submit Your Data</h2>
@@ -133,6 +140,7 @@ const HomePage = () => {
               </div>
             </form>
 
+            {/* Stego File Display */}
             {downloadUrl && (
               <div className="mt-6 bg-white p-4 rounded-xl shadow text-center">
                 <h3 className="text-lg font-semibold text-emerald-800 mb-2">Stego File Ready 🎉</h3>
@@ -166,7 +174,9 @@ const HomePage = () => {
             )}
           </div>
         ) : (
-          <p className="">Please log in to submit files.</p>
+          <p className="">
+           
+          </p>
         )}
       </div>
     </div>

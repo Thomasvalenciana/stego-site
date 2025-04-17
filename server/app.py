@@ -7,23 +7,26 @@ UPLOAD_FOLDER = 'uploads'
 RESULT_FOLDER = 'results'
 
 app = Flask(__name__)
-CORS(app)  # Enables CORS for all routes
+CORS(app)  #  Enable CORS for React dev server (localhost:5173)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['RESULT_FOLDER'] = RESULT_FOLDER
 
-# Create directories if they don't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
 @app.route('/')
 def home():
-    return "✅ Flask backend is running!"
+    return " Flask backend is running!"
+
+
+
+
 
 @app.route('/submit', methods=['POST'])
 def submit():
     if 'carrier' not in request.files or 'message' not in request.files:
-        return jsonify({'error': 'Missing carrier or message file'}), 400
+        return jsonify({'error': 'Missing files'}), 400
 
     carrier = request.files['carrier']
     message = request.files['message']
@@ -32,10 +35,12 @@ def submit():
     message_path = os.path.join(RESULT_FOLDER, message.filename)
     output_path = os.path.join(RESULT_FOLDER, f"stego_{carrier.filename}")
 
+    # Save files
     carrier.save(carrier_path)
     message.save(message_path)
 
     try:
+        # ✅ Add 'embed' command and remove unused start/length/mode
         subprocess.run([
             'python3', 'stego.py',
             'embed',
@@ -45,17 +50,18 @@ def submit():
         if not os.path.exists(output_path):
             return jsonify({'error': 'Stego file was not created'}), 500
 
-        print(f"✅ Stego file saved at: {output_path}")
-        return jsonify({
-            'message': 'Success',
-            'file': f"/files/{os.path.basename(output_path)}",
-            'carrier_name': carrier.filename,
-            'message_name': message.filename
-        })
-
     except subprocess.CalledProcessError as e:
-        print("❌ Stego process failed:", e)
+        print(" Stego process failed:", e)
         return jsonify({'error': 'Stego process failed'}), 500
+
+    print("✅ File processed and saved:", output_path)
+    return jsonify({
+        'message': 'Success',
+        'file': f"/files/{os.path.basename(output_path)}",
+        'carrier_name': carrier.filename,
+        'message_name': message.filename
+    })
+
 
 @app.route('/extract', methods=['POST'])
 def extract_hidden():
@@ -75,43 +81,29 @@ def extract_hidden():
             ['python3', 'stego.py', carrier_path, start, length, mode],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            check=True
+            check=True,
         )
         message = result.stdout.decode('utf-8')
         return jsonify({'message': message})
-
     except subprocess.CalledProcessError as e:
-        print(" Extraction failed:", e.stderr.decode())
+        print("⚠️ Extraction failed:", e.stderr.decode())
         return jsonify({'error': 'Extraction failed'}), 500
+
 
 @app.route('/files/<filename>')
 def serve_file(filename):
-    return send_from_directory(RESULT_FOLDER, filename, as_attachment=False)
+    return send_from_directory(RESULT_FOLDER, filename)
 
 @app.route('/uploads/<filename>')
 def serve_uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=False)
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 @app.route('/list-uploads')
 def list_uploads():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     return jsonify(files)
-@app.route('/dashboard')
-def dashboard():
-    upload_files = os.listdir(UPLOAD_FOLDER)
-    result_files = os.listdir(RESULT_FOLDER)
 
-    html = "<h2>📤 Uploaded Files</h2><ul>"
-    for f in upload_files:
-        html += f"<li><a href='/uploads/{f}' target='_blank'>{f}</a></li>"
-    html += "</ul><hr><h2>🎯 Result Files</h2><ul>"
-    for f in result_files:
-        html += f"<li><a href='/files/{f}' target='_blank'>{f}</a></li>"
-    html += "</ul>"
+if __name__ == '__main__':
+    print("Starting Flask server on http://localhost:5000")
+    app.run(debug=True)
 
-    return html
-
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)

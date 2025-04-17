@@ -3,13 +3,14 @@ import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+const BASE_URL = 'https://stego-backend-1txg.onrender.com';
+
 const HomePage = () => {
   const [publicFiles, setPublicFiles] = useState([]);
   const [user, setUser] = useState(null);
   const [carrierFile, setCarrierFile] = useState(null);
   const [messageFile, setMessageFile] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState('');
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +21,7 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_BASE}/list-uploads`)
+    axios.get(`${BASE_URL}/list-uploads`)
       .then(res => setPublicFiles(res.data))
       .catch(console.error);
   }, []);
@@ -41,18 +42,17 @@ const HomePage = () => {
     formData.append("mode", "basic");
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE}/submit`, formData, {
+      const res = await axios.post(`${BASE_URL}/submit`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      const fullStegoUrl = `${import.meta.env.VITE_API_BASE}${res.data.file}`;
+      const fullStegoUrl = `${BASE_URL}${res.data.file}`;
       setDownloadUrl(fullStegoUrl);
       alert("Upload successful!");
 
-      // Refresh public uploads
-      const uploadList = await axios.get(`${import.meta.env.VITE_API_BASE}/list-uploads`);
+      const uploadList = await axios.get(`${BASE_URL}/list-uploads`);
       setPublicFiles(uploadList.data);
 
     } catch (err) {
@@ -71,7 +71,7 @@ const HomePage = () => {
             <h2 className="text-lg font-semibold mb-3 text-emerald-700">Uploaded Files</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {publicFiles.map((file, idx) => {
-                const fileUrl = `${import.meta.env.VITE_API_BASE}/uploads/${file}`;
+                const fileUrl = `${BASE_URL}/uploads/${file}`;
                 const isImage = file.match(/\.(jpg|jpeg|png|gif)$/i);
                 const isVideo = file.match(/\.(mp4|mov|webm)$/i);
 

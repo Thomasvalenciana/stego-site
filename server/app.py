@@ -15,9 +15,6 @@ app.config['RESULT_FOLDER'] = RESULT_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
-@app.route('/')
-def home():
-    return " Flask backend is running!"
 
 
 
@@ -78,7 +75,7 @@ def extract_hidden():
 
     try:
         result = subprocess.run(
-            ['python3', 'stego.py', carrier_path, start, length, mode],
+            ['python3', 'server/stego.py', carrier_path, start, length, mode],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=True,

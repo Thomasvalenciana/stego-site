@@ -3,8 +3,9 @@ import os
 import subprocess
 from flask_cors import CORS
 
-UPLOAD_FOLDER = 'uploads'
-RESULT_FOLDER = 'results'
+UPLOAD_FOLDER = '/tmp/uploads'
+RESULT_FOLDER = '/tmp/results'
+
 
 app = Flask(__name__, static_folder='dist', static_url_path='')
 CORS(app)  # Enable CORS for React dev server or deployment
@@ -32,7 +33,7 @@ def submit():
 
     try:
         subprocess.run([
-            'python3', 'stego.py',
+            'python3', 'server/stego.py',
             'embed',
             carrier_path, message_path, output_path
         ], check=True)
@@ -68,7 +69,7 @@ def extract_hidden():
 
     try:
         result = subprocess.run(
-            ['python3', 'stego.py', carrier_path, start, length, mode],
+            ['python3', 'server/stego.py', carrier_path, start, length, mode],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=True,

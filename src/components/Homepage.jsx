@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const HomePage = () => {
   const [publicFiles, setPublicFiles] = useState([]);
@@ -19,9 +20,8 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_BASE}/list-uploads`)
-      .then(res => res.json())
-      .then(setPublicFiles)
+    axios.get(`${import.meta.env.VITE_API_BASE}/list-uploads`)
+      .then(res => setPublicFiles(res.data))
       .catch(console.error);
   }, []);
 
@@ -41,26 +41,19 @@ const HomePage = () => {
     formData.append("mode", "basic");
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE}/submit`, {
-        method: 'POST',
-        body: formData,
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE}/submit`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Server error: ${res.status} ${text}`);
-      }
-
-      const data = await res.json();
-      const fullStegoUrl = `${import.meta.env.VITE_API_BASE}${data.file}`;
+      const fullStegoUrl = `${import.meta.env.VITE_API_BASE}${res.data.file}`;
       setDownloadUrl(fullStegoUrl);
       alert("Upload successful!");
 
       // Refresh public uploads
-      fetch(`${import.meta.env.VITE_API_BASE}/list-uploads`)
-        .then(res => res.json())
-        .then(setPublicFiles)
-        .catch(console.error);
+      const uploadList = await axios.get(`${import.meta.env.VITE_API_BASE}/list-uploads`);
+      setPublicFiles(uploadList.data);
 
     } catch (err) {
       console.error("Upload failed:", err);

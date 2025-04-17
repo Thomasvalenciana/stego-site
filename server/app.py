@@ -3,18 +3,25 @@ import os
 import subprocess
 from flask_cors import CORS
 
-UPLOAD_FOLDER = '/tmp/uploads'
-RESULT_FOLDER = '/tmp/results'
+UPLOAD_FOLDER = 'uploads'
+RESULT_FOLDER = 'results'
 
-
-app = Flask(__name__, static_folder='dist', static_url_path='')
-CORS(app)  # Enable CORS for React dev server or deployment
+app = Flask(__name__)
+CORS(app)  #  Enable CORS for React dev server (localhost:5173)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['RESULT_FOLDER'] = RESULT_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
+
+@app.route('/')
+def home():
+    return " Flask backend is running!"
+
+
+
+
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -28,12 +35,14 @@ def submit():
     message_path = os.path.join(RESULT_FOLDER, message.filename)
     output_path = os.path.join(RESULT_FOLDER, f"stego_{carrier.filename}")
 
+    # Save files
     carrier.save(carrier_path)
     message.save(message_path)
 
     try:
+        # ✅ Add 'embed' command and remove unused start/length/mode
         subprocess.run([
-            'python3', 'server/stego.py',
+            'python3', 'stego.py',
             'embed',
             carrier_path, message_path, output_path
         ], check=True)
@@ -42,7 +51,7 @@ def submit():
             return jsonify({'error': 'Stego file was not created'}), 500
 
     except subprocess.CalledProcessError as e:
-        print("Stego process failed:", e)
+        print(" Stego process failed:", e)
         return jsonify({'error': 'Stego process failed'}), 500
 
     print("✅ File processed and saved:", output_path)
@@ -69,7 +78,7 @@ def extract_hidden():
 
     try:
         result = subprocess.run(
-            ['python3', 'server/stego.py', carrier_path, start, length, mode],
+            ['python3', 'stego.py', carrier_path, start, length, mode],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=True,
@@ -93,15 +102,6 @@ def serve_uploaded_file(filename):
 def list_uploads():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     return jsonify(files)
-
-# ✅ Serve React frontend from 'dist'
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def serve_react(path):
-    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
     print("Starting Flask server on http://localhost:5000")

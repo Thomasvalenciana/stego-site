@@ -42,7 +42,7 @@ def submit():
     try:
         # ✅ Add 'embed' command and remove unused start/length/mode
         subprocess.run([
-            'python3', 'stego.py',
+            'python3', 'server/stego.py',
             'embed',
             carrier_path, message_path, output_path
         ], check=True)

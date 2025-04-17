@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
-import { backend } from '../utils/constants';
-
 
 const HomePage = () => {
   const [publicFiles, setPublicFiles] = useState([]);
@@ -18,14 +16,13 @@ const HomePage = () => {
     });
     return () => unsubscribe();
   }, []);
+
   useEffect(() => {
-    fetch(`${backend}/list-uploads`) // ✅ UPDATED
+    fetch('http://127.0.0.1:5000/list-uploads')
       .then(res => res.json())
       .then(setPublicFiles)
       .catch(console.error);
   }, []);
-
- 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,7 +40,7 @@ const HomePage = () => {
     formData.append("mode", "basic");
 
     try {
-      const res = await fetch(`${backend}/submit`, { // ✅ UPDATED
+      const res = await fetch('http://127.0.0.1:5000/submit', {
         method: 'POST',
         body: formData,
       });
@@ -54,20 +51,20 @@ const HomePage = () => {
       }
 
       const data = await res.json();
-      const fullStegoUrl = `${backend}${data.file}`;
+      const fullStegoUrl = `http://127.0.0.1:5000${data.file}`;
       setDownloadUrl(fullStegoUrl);
       alert("Upload successful!");
 
-      fetch(`${backend}/list-uploads`) // ✅ UPDATED
-      .then(res => res.json())
-      .then(setPublicFiles)
-      .catch(console.error);
+      fetch('http://127.0.0.1:5000/list-uploads')
+        .then(res => res.json())
+        .then(setPublicFiles)
+        .catch(console.error);
 
-  } catch (err) {
-    console.error("Upload failed:", err);
-    alert("Upload failed: " + err.message);
-  }
-};
+    } catch (err) {
+      console.error("Upload failed:", err);
+      alert("Upload failed: " + err.message);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-100 to-emerald-200 py-10 px-4">
@@ -80,7 +77,7 @@ const HomePage = () => {
             <h2 className="text-lg font-semibold mb-3 text-emerald-700">Uploaded Files</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {publicFiles.map((file, idx) => {
-                const fileUrl = `${backend}/uploads/${file}`;
+                const fileUrl = `http://127.0.0.1:5000/uploads/${file}`;
                 const isImage = file.match(/\.(jpg|jpeg|png|gif)$/i);
                 const isVideo = file.match(/\.(mp4|mov|webm)$/i);
 
@@ -100,7 +97,7 @@ const HomePage = () => {
                       rel="noreferrer"
                       className="text-emerald-600 underline text-sm mt-2 inline-block"
                     >
-                      
+                      Download File
                     </a>
                   </div>
                 );
@@ -146,7 +143,7 @@ const HomePage = () => {
             {/* Stego File Display */}
             {downloadUrl && (
               <div className="mt-6 bg-white p-4 rounded-xl shadow text-center">
-                <h3 className="text-lg font-semibold text-emerald-800 mb-2">File Ready To Download </h3>
+                <h3 className="text-lg font-semibold text-emerald-800 mb-2">Stego File Ready 🎉</h3>
 
                 {downloadUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                   <img src={downloadUrl} alt="Stego file" className="mx-auto h-40 object-cover rounded border" />

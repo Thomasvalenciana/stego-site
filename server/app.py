@@ -6,22 +6,14 @@ from flask_cors import CORS
 UPLOAD_FOLDER = 'uploads'
 RESULT_FOLDER = 'results'
 
-app = Flask(__name__)
-CORS(app)  #  Enable CORS for React dev server (localhost:5173)
+app = Flask(__name__, static_folder='dist', static_url_path='')
+CORS(app)  # Enable CORS for React dev server or deployment
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['RESULT_FOLDER'] = RESULT_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
-
-@app.route('/')
-def home():
-    return " Flask backend is running!"
-
-
-
-
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -35,12 +27,10 @@ def submit():
     message_path = os.path.join(RESULT_FOLDER, message.filename)
     output_path = os.path.join(RESULT_FOLDER, f"stego_{carrier.filename}")
 
-    # Save files
     carrier.save(carrier_path)
     message.save(message_path)
 
     try:
-        # ✅ Add 'embed' command and remove unused start/length/mode
         subprocess.run([
             'python3', 'stego.py',
             'embed',
@@ -51,7 +41,7 @@ def submit():
             return jsonify({'error': 'Stego file was not created'}), 500
 
     except subprocess.CalledProcessError as e:
-        print(" Stego process failed:", e)
+        print("Stego process failed:", e)
         return jsonify({'error': 'Stego process failed'}), 500
 
     print("✅ File processed and saved:", output_path)
@@ -102,6 +92,15 @@ def serve_uploaded_file(filename):
 def list_uploads():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     return jsonify(files)
+
+# ✅ Serve React frontend from 'dist'
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 if __name__ == '__main__':
     print("Starting Flask server on http://localhost:5000")

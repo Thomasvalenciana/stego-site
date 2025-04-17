@@ -3,8 +3,9 @@ import os
 import subprocess
 from flask_cors import CORS
 
-UPLOAD_FOLDER = 'uploads'
-RESULT_FOLDER = 'results'
+UPLOAD_FOLDER = '/tmp/uploads'
+RESULT_FOLDER = '/tmp/results'
+
 
 app = Flask(__name__)
 CORS(app)  #  Enable CORS for React dev server (localhost:5173)

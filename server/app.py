@@ -102,7 +102,16 @@ def serve_uploaded_file(filename):
 def list_uploads():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     return jsonify(files)
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_react(path):
+    if path != "" and os.path.exists(os.path.join('dist', path)):
+        return send_from_directory('dist', path)
+    else:
+        return send_from_directory('dist', 'index.html')
+
 
 if __name__ == '__main__':
     print("Starting Flask server on http://localhost:5000")
     app.run(debug=True)
+    

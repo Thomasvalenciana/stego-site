@@ -1,2 +1,1 @@
-export const backend = "";
-export const frontend ="  https://stego-site-3.onrender.com";
+export const backend = "https://stego-site-2.onrender.com";

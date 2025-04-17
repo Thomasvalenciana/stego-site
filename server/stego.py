@@ -48,9 +48,9 @@ if __name__ == "__main__":
 
     args = sys.argv
     if len(args) < 3:
-        print("❌ Usage:")
-        print("👉 Embed:   python stego.py embed carrier_file message_file output_file")
-        print("👉 Extract: python stego.py extract stego_file [output_file_base]")
+        print(" Usage:")
+        print("Embed:   python stego.py embed carrier_file message_file output_file")
+        print("Extract: python stego.py extract stego_file [output_file_base]")
         sys.exit(1)
 
     mode = args[1]
@@ -64,4 +64,4 @@ if __name__ == "__main__":
         extract_message(stego_file, output_base)
 
     else:
-        print("❌ Invalid command.")
+        print("Invalid command.")

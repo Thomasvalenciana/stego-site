@@ -54,7 +54,7 @@ const HomePage = () => {
       }
 
       const data = await res.json();
-      const fullStegoUrl = `http://127.0.0.1:5000${data.file}`;
+      const fullStegoUrl = `${backend}${data.file}`;
       setDownloadUrl(fullStegoUrl);
       alert("Upload successful!");
 
@@ -80,7 +80,7 @@ const HomePage = () => {
             <h2 className="text-lg font-semibold mb-3 text-emerald-700">Uploaded Files</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {publicFiles.map((file, idx) => {
-                const fileUrl = `http://127.0.0.1:5000/uploads/${file}`;
+                const fileUrl = `${backend}/uploads/${file}`;
                 const isImage = file.match(/\.(jpg|jpeg|png|gif)$/i);
                 const isVideo = file.match(/\.(mp4|mov|webm)$/i);
 

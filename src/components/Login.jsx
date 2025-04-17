@@ -7,13 +7,13 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // ✅ Moved OUTSIDE of handleLogin
+  const navigate = useNavigate(); 
 
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       alert('Logged in!');
-      navigate('/home'); // ✅ works now
+      navigate('/home'); 
     } catch (error) {
       alert(error.message);
     }

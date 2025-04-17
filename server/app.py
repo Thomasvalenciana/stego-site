@@ -81,7 +81,7 @@ def extract_hidden():
         return jsonify({'message': message})
 
     except subprocess.CalledProcessError as e:
-        print("❌ Extraction failed:", e.stderr.decode())
+        print(" Extraction failed:", e.stderr.decode())
         return jsonify({'error': 'Extraction failed'}), 500
 
 @app.route('/files/<filename>')
@@ -96,6 +96,21 @@ def serve_uploaded_file(filename):
 def list_uploads():
     files = os.listdir(app.config['UPLOAD_FOLDER'])
     return jsonify(files)
+@app.route('/dashboard')
+def dashboard():
+    upload_files = os.listdir(UPLOAD_FOLDER)
+    result_files = os.listdir(RESULT_FOLDER)
+
+    html = "<h2>📤 Uploaded Files</h2><ul>"
+    for f in upload_files:
+        html += f"<li><a href='/uploads/{f}' target='_blank'>{f}</a></li>"
+    html += "</ul><hr><h2>🎯 Result Files</h2><ul>"
+    for f in result_files:
+        html += f"<li><a href='/files/{f}' target='_blank'>{f}</a></li>"
+    html += "</ul>"
+
+    return html
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

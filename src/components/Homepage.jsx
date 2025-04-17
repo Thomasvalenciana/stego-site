@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { backend } from '../utils/constants';
+
 
 const HomePage = () => {
   const [publicFiles, setPublicFiles] = useState([]);
@@ -16,13 +18,14 @@ const HomePage = () => {
     });
     return () => unsubscribe();
   }, []);
-
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/list-uploads')
+    fetch(`${backend}/list-uploads`) // ✅ UPDATED
       .then(res => res.json())
       .then(setPublicFiles)
       .catch(console.error);
   }, []);
+
+ 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,7 +43,7 @@ const HomePage = () => {
     formData.append("mode", "basic");
 
     try {
-      const res = await fetch('http://127.0.0.1:5000/submit', {
+      const res = await fetch(`${backend}/submit`, { // ✅ UPDATED
         method: 'POST',
         body: formData,
       });
@@ -55,16 +58,16 @@ const HomePage = () => {
       setDownloadUrl(fullStegoUrl);
       alert("Upload successful!");
 
-      fetch('http://127.0.0.1:5000/list-uploads')
-        .then(res => res.json())
-        .then(setPublicFiles)
-        .catch(console.error);
+      fetch(`${backend}/list-uploads`) // ✅ UPDATED
+      .then(res => res.json())
+      .then(setPublicFiles)
+      .catch(console.error);
 
-    } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Upload failed: " + err.message);
-    }
-  };
+  } catch (err) {
+    console.error("Upload failed:", err);
+    alert("Upload failed: " + err.message);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-100 to-emerald-200 py-10 px-4">

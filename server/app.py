@@ -7,12 +7,12 @@ UPLOAD_FOLDER = 'uploads'
 RESULT_FOLDER = 'results'
 
 app = Flask(__name__)
-CORS(app)  # Enables CORS for all routes
+CORS(app)  # this enables CORS for all routes
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['RESULT_FOLDER'] = RESULT_FOLDER
 
-# Create directories if they don't exist
+# create somedirectories if they don't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
@@ -45,7 +45,7 @@ def submit():
         if not os.path.exists(output_path):
             return jsonify({'error': 'Stego file was not created'}), 500
 
-        print(f"✅ Stego file saved at: {output_path}")
+        print(f" Stego file saved at: {output_path}")
         return jsonify({
             'message': 'Success',
             'file': f"/files/{os.path.basename(output_path)}",
@@ -54,7 +54,7 @@ def submit():
         })
 
     except subprocess.CalledProcessError as e:
-        print("❌ Stego process failed:", e)
+        print("Stego process failed:", e)
         return jsonify({'error': 'Stego process failed'}), 500
 
 @app.route('/extract', methods=['POST'])

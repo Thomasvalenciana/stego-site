@@ -3,6 +3,10 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase'; // 🔁 Make sure this path is correct
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase';
+
+console.log("🔥 Firebase Auth instance:", auth);
+
 
 const Signup = () => {
   const [email, setEmail] = useState('');

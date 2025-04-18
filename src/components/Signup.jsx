@@ -1,67 +1,67 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '../firebase';
+import { auth, db } from '../firebase'; // make sure these are configured
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    console.log("Sign up button clicked"); // ✅ this will confirm if the button is working
-
+    if (!email || !password) {
+      setError('Please fill out all fields.');
+      return;
+    }
+    setLoading(true);
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
 
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
-      setSuccess(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    } catch (error) {
-      console.error("Signup error:", error); // ✅ this helps catch detailed errors
-      alert(error.message);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#fef9c3' }}>
-      <div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', width: '300px', textAlign: 'center', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>Sign Up</h2>
-
-        {success && (
-          <div style={{ background: '#d1fae5', color: '#065f46', padding: '0.5rem', borderRadius: '0.5rem', marginBottom: '1rem' }}>
-            ✅ Account created! Redirecting...
-          </div>
-        )}
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <input
           type="email"
           placeholder="Email"
+          className="w-full mb-4 px-4 py-2 border rounded-md"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem', borderRadius: '0.25rem', border: '1px solid #ccc' }}
         />
+
         <input
           type="password"
           placeholder="Password"
+          className="w-full mb-6 px-4 py-2 border rounded-md"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '0.5rem', marginBottom: '1rem', borderRadius: '0.25rem', border: '1px solid #ccc' }}
         />
+
         <button
           onClick={handleSignup}
-          style={{ width: '100%', padding: '0.5rem', background: '#facc15', color: 'white', border: 'none', borderRadius: '0.25rem' }}
+          disabled={loading}
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
         >
-          Sign Up
+          {loading ? 'Signing up...' : 'Sign Up'}
         </button>
       </div>
     </div>

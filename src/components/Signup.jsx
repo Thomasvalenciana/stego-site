@@ -7,8 +7,8 @@ import { useNavigate } from 'react-router-dom';
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSignup = async () => {
@@ -26,12 +26,12 @@ const Signup = () => {
         createdAt: new Date(),
       });
 
-      console.log("✅ Account created");
-      setSuccess(true); // show success
-      setTimeout(() => navigate('/'), 2000); // redirect after 2s
+      setSuccess(true);
+      setError('');
+      setTimeout(() => navigate('/'), 2000);
     } catch (err) {
-      console.error("❌ Firebase signup error:", err);
       setError(err.message);
+      setSuccess(false);
     }
   };
 
@@ -40,7 +40,7 @@ const Signup = () => {
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
         {success && <p className="text-green-600 mb-4 text-center">✅ Account created!</p>}
 
         <input

@@ -7,25 +7,31 @@ import { useNavigate } from 'react-router-dom';
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [success, setSuccess] = useState(false); // ✅ added state for success
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async () => {
+    if (loading) return; // prevent double-clicks
+    setLoading(true);
+
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
 
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
-        createdAt: new Date()
+        createdAt: new Date(),
       });
 
-      setSuccess(true); // ✅ show success message
+      setSuccess(true); // ✅ trigger message
       setTimeout(() => {
         navigate('/'); // redirect after 2.5s
       }, 2500);
     } catch (error) {
       alert(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,18 +51,23 @@ const Signup = () => {
               placeholder="Email"
               className="w-full p-2 border rounded mb-4"
               onChange={(e) => setEmail(e.target.value)}
+              value={email}
             />
             <input
               type="password"
               placeholder="Password"
               className="w-full p-2 border rounded mb-4"
               onChange={(e) => setPassword(e.target.value)}
+              value={password}
             />
             <button
               onClick={handleSignup}
-              className="bg-yellow-500 text-white px-4 py-2 rounded w-full hover:bg-yellow-600 transition"
+              disabled={loading}
+              className={`bg-yellow-500 text-white px-4 py-2 rounded w-full transition ${
+                loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yellow-600'
+              }`}
             >
-              Sign Up
+              {loading ? 'Signing Up...' : 'Sign Up'}
             </button>
           </>
         )}

@@ -20,7 +20,7 @@ const MainPage = () => {
 
           <button
             className="bg-white text-green-600 px-6 py-2 rounded-lg shadow-md hover:bg-green-100"
-            onClick={() => navigate('/signup')}
+            onClick={() => navigate('/Signup')}
           >
             Sign Up
           </button>

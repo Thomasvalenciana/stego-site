@@ -9,7 +9,7 @@ const MainPage = () => {
       <div className="text-center space-y-6">
         <h1 className="text-white text-4xl font-bold">Welcome</h1>
 
-        {/* Spaced Button Container */}
+        {/* butoton ontainer */}
         <div className="flex space-x-4 justify-center">
           <button
             className="bg-white text-green-600 px-6 py-2 rounded-lg shadow-md hover:bg-green-100"

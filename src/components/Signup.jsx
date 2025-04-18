@@ -17,7 +17,7 @@ const SignUp = () => {
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-      alert('✅ Account created!');
+      alert('Account created!');
       navigate('/');
     } catch (err) {
       setError(err.message);

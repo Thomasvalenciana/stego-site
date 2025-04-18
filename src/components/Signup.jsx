@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '../firebase'; // 🔁 Make sure this path is correct
+import { auth, db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from '../firebase';
-
-console.log("🔥 Firebase Auth instance:", auth);
-
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async () => {
@@ -21,27 +17,21 @@ const Signup = () => {
       return;
     }
 
-    setLoading(true);
-    setError('');
-    console.log("⏳ Attempting to sign up...");
-
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
-      console.log("✅ Firebase user created:", user);
 
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         createdAt: new Date(),
       });
-      console.log("✅ User saved to Firestore");
 
-      navigate('/');
+      console.log("✅ Account created");
+      setSuccess(true); // show success
+      setTimeout(() => navigate('/'), 2000); // redirect after 2s
     } catch (err) {
       console.error("❌ Firebase signup error:", err);
-      setError(err.message); // 👈 This is your error handler showing feedback
-    } finally {
-      setLoading(false);
+      setError(err.message);
     }
   };
 
@@ -50,7 +40,8 @@ const Signup = () => {
       <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
 
-        {error && <p className="text-red-500 mb-4">{error}</p>} {/* shows error */}
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        {success && <p className="text-green-600 mb-4 text-center">✅ Account created!</p>}
 
         <input
           type="email"
@@ -70,10 +61,9 @@ const Signup = () => {
 
         <button
           onClick={handleSignup}
-          disabled={loading}
           className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
         >
-          {loading ? 'Signing up...' : 'Sign Up'}
+          Create Account
         </button>
       </div>
     </div>

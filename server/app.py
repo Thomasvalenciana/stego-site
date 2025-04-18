@@ -18,7 +18,7 @@ os.makedirs(RESULT_FOLDER, exist_ok=True)
 
 @app.route('/')
 def home():
-    return "✅ Flask backend is running!"
+    return "Flask backend is running!"
 
 @app.route('/submit', methods=['POST'])
 def submit():

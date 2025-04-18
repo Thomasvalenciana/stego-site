@@ -81,7 +81,7 @@ def extract_hidden():
         return jsonify({'message': message})
 
     except subprocess.CalledProcessError as e:
-        print(" Extraction failed:", e.stderr.decode())
+        print("❌ Extraction failed:", e.stderr.decode())
         return jsonify({'error': 'Extraction failed'}), 500
 
 @app.route('/files/<filename>')

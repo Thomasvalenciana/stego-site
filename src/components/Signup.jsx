@@ -26,7 +26,7 @@ const SignUp = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.heading}>Sign Up 💜</h2>
+      <h2 style={styles.heading}>Sign Up </h2>
       {error && <p style={styles.error}>{error}</p>}
       <input
         type="email"

@@ -17,22 +17,29 @@ const Signup = () => {
       return;
     }
     setLoading(true);
+    setError('');
+    console.log("⏳ Attempting to sign up...");
+  
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
-
+      console.log("✅ Firebase user created:", user);
+  
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         createdAt: new Date()
       });
-
+      console.log("✅ User saved to Firestore");
+  
       navigate('/');
     } catch (err) {
+      console.error("❌ Signup error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">

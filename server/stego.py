@@ -1,5 +1,5 @@
 import os
-
+#code to embed mesage
 def embed_message(carrier_file, message_file, output_file):
     with open(carrier_file, 'rb') as f:
         carrier_data = f.read()
@@ -7,12 +7,12 @@ def embed_message(carrier_file, message_file, output_file):
     with open(message_file, 'rb') as f:
         message_data = f.read()
 
-    # Get file extension (e.g., .mov, .pdf, .txt)
+    # diff files
     _, ext = os.path.splitext(message_file)
-    ext_bytes = ext.encode('utf-8')  # e.g., b'.mov'
+    ext_bytes = ext.encode('utf-8')  
 
     delimiter = b'==STEGO_END=='
-    # Format: carrier + delimiter + extension + delimiter + message
+    
     combined = carrier_data + delimiter + ext_bytes + delimiter + message_data
 
     with open(output_file, 'wb') as f:
@@ -20,7 +20,7 @@ def embed_message(carrier_file, message_file, output_file):
     
     print(f"Embedded message: '{message_file}' (.{ext}) into  Steganography'{output_file}'")
 
-
+# extracting meessage 
 def extract_message(stego_file, output_base='recovered'):
     with open(stego_file, 'rb') as f:
         data = f.read()
@@ -32,7 +32,7 @@ def extract_message(stego_file, output_base='recovered'):
         print(" No embedded message found.")
         return
 
-    ext = parts[1].decode('utf-8')  # Get extension
+    ext = parts[1].decode('utf-8')  
     message_data = parts[2]
 
     output_file = f"{output_base}{ext}"

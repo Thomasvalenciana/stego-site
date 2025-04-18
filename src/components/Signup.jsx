@@ -1,61 +1,83 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth, db } from '../firebase'; // Make sure this path is correct
+import { auth, db } from '../firebase'; // 🔁 Make sure this path is correct
 import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { auth, db } from '../firebase';
 
-const SignUp = () => {
+console.log("🔥 Firebase Auth instance:", auth);
+
+
+const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignUp = async () => {
+  const handleSignup = async () => {
     if (!email || !password) {
-      setError('Please enter both email and password.');
+      setError('Please fill out all fields.');
       return;
     }
+
+    setLoading(true);
+    setError('');
+    console.log("⏳ Attempting to sign up...");
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCred.user;
+      console.log("✅ Firebase user created:", user);
 
-      // Save additional user info in Firestore
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         createdAt: new Date(),
       });
+      console.log("✅ User saved to Firestore");
 
-      alert('✅ Account created successfully!');
-      navigate('/'); // Redirect after sign-up
+      navigate('/');
     } catch (err) {
-      setError(err.message);
+      console.error("❌ Firebase signup error:", err);
+      setError(err.message); // 👈 This is your error handler showing feedback
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Create Account</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ display: 'block', width: '100%', marginBottom: '1rem' }}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ display: 'block', width: '100%', marginBottom: '1rem' }}
-      />
-      <button onClick={handleSignUp} style={{ padding: '0.5rem 1rem' }}>
-        Sign Up
-      </button>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Create Account</h1>
+
+        {error && <p className="text-red-500 mb-4">{error}</p>} {/* shows error */}
+
+        <input
+          type="email"
+          placeholder="Email"
+          className="w-full mb-4 px-4 py-2 border rounded-md"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          className="w-full mb-6 px-4 py-2 border rounded-md"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button
+          onClick={handleSignup}
+          disabled={loading}
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+        >
+          {loading ? 'create account' : 'Sign Up!'}
+        </button>
+      </div>
     </div>
   );
 };
 
-export default SignUp;
+export default Signup;
